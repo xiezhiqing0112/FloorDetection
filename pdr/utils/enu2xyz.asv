@@ -1,0 +1,43 @@
+function xyz=enu2xyz(enu,orgllh)
+    phi = orgllh(1);
+    lam = orgllh(2);
+    sinphi = sind(phi);
+    cosphi = cosd(phi);
+    sinlam = sind(lam);
+    coslam = cosd(lam);
+    R = [ -sinlam          coslam         0     ; ...
+      -sinphi*coslam  -sinphi*sinlam  cosphi; ...
+       cosphi*coslam   cosphi*sinlam  sinphi];
+    difxyz=enu*inv(R');
+    
+    temporg=xyz
+    
+    tmpxyz(:,1) = difxyz(:,1) + tmporg(1);
+    tmpxyz(:,2) = difxyz(:,2) + tmporg(2);
+    tmpxyz(:,3) = difxyz(:,3) + tmporg(3);
+    
+    
+end
+
+
+
+tmpxyz = xyz;
+tmporg = orgxyz;
+% if size(tmpxyz) ~= size(tmporg), tmporg=tmporg'; end,
+% difxyz = zeros(size(tmpxyz),3);
+difxyz(:,1) = tmpxyz(:,1) - tmporg(1);
+difxyz(:,2) = tmpxyz(:,2) - tmporg(2);
+difxyz(:,3) = tmpxyz(:,3) - tmporg(3);
+% [m,n] = size(difxyz); if m<n, difxyz=difxyz'; end,
+orgllh = xyz2llh(orgxyz);
+phi = orgllh(1);
+lam = orgllh(2);
+sinphi = sind(phi);
+cosphi = cosd(phi);
+sinlam = sind(lam);
+coslam = cosd(lam);
+R = [ -sinlam          coslam         0     ; ...
+      -sinphi*coslam  -sinphi*sinlam  cosphi; ...
+       cosphi*coslam   cosphi*sinlam  sinphi];
+enu = (R*difxyz')';
+difxyz*R'=enu

@@ -1,0 +1,61 @@
+function enu=llh2pixel(posi_p)
+    px=1489;
+    py=1104;
+    lx=[367 787 1151 1137 703 350 179 931];
+    ly=[158 143 155 1071 1056 1059 876 646];
+    llh_mk=dlmread('lib_CalibrationPoints.csv',',',1,1);
+    position=posi_p;
+    position(:,3)=0;
+    llh_mk(:,3)=0;
+    orgxyz=llh_mk(1,:);
+    llh=position;
+    enu=llh2enu(orgxyz,llh);
+    enu=enu(:,1:2);
+    mk_enu=llh2enu(orgxyz,llh_mk);
+    mk_enu=mk_enu(:,1:2);
+    tx=367;
+    ty=158;
+    T = rotation_angle(ly(1:2)',lx(1:2)',[ones(2,1) mk_enu(1:2,:)]);
+    enu(:,1:2)=round(enu(:,[2 1])*T);
+    
+%     figure
+end
+
+function T=rotation_angle(x,y,mkp)%,addition_step)
+        step_count = length(x);
+        u = [mkp(end,2)-mkp(1,2) mkp(end,3)-mkp(1,3) 0];
+        v = [x(step_count)-x(1) y(step_count)-y(1) 0];
+        if (norm(u)*norm(v))==0
+            theta=0;
+            rho=[0 0 0];
+        else
+            theta = acos(u*v'/(norm(u)*norm(v)));
+            rho = asin(cross(v,u)/(norm(u)*norm(v)));
+        end
+        if rho(3)<0
+            theta = -theta;
+        end
+        position = [x y ones(step_count,1)];
+        t = [1 0 0;0 1 0;-x(1) -y(1) 1];
+        t_m=[1 0 0;0 1 0;mkp(1,2) mkp(1,3) 1];
+        r = [cos(theta) sin(theta) 0;-sin(theta) cos(theta) 0;0 0 1];
+        pos_r = position*t*r*t_m;
+        sx = (mkp(end,2)-mkp(1,2))/(pos_r(step_count,1)-pos_r(1,1))*(step_count-1)/step_count;
+        sy = (mkp(end,3)-mkp(1,3))/(pos_r(step_count,2)-pos_r(1,2))*(step_count-1)/step_count;
+        if norm(v)==0
+            sx = 1;
+        else
+            sx = norm(u)/norm(v);
+        end
+        sy=sx;
+        s = [sx 0 0;0 sy 0;0 0 1];
+%         position=pos_r*s*t_m;
+        
+        T=t*r*s*t_m;
+%         positionX = position(:,1);
+%         positionY = position(:,2); 
+%         positionX = position(2:end-1,1);
+%         positionY = position(2:end-1,2); 
+%     end
+end
+

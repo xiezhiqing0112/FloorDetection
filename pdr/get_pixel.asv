@@ -1,0 +1,60 @@
+path_='/home/mxc/wonderland/datasets/IPIN/pseudo_gps_csv/evaluation_llh.csv';
+wifi_path='/home/mxc/wonderland/datasets/IPIN/pseudo_gps_csv/wifi_posi_and_floor.csv';
+floor_path='/home/mxc/wonderland/datasets/IPIN/pseudo_gps_csv/wifi_posi_and_floor.csv';
+
+posi_llh=dlmread(path_,',',0,0);
+wifi_llh_=dlmread(wifi_path,',',1,0);
+wifi_llh=wifi_llh_(:,[3 458 459]);
+floor=wifi_llh_(:,460);
+f_t=dlmread(floor_path,',',1,2);
+% wifi_llh=wifi_llh(:,2:3);
+pixel_=llh2pixel(posi_llh(:,2:3));
+wifi_pixel=llh2pixel(wifi_llh(:,2:3));
+pixel_ac=llh2pixel(posi_llh(:,5:6));
+
+floor1=[];
+floor2=[];
+floor3=[];
+floor4=[];
+floor5=[];
+floor1_w=[];
+floor2_w=[];
+floor3_w=[];
+floor4_w=[];
+floor5_w=[];
+f=3;
+for i=1:length(posi_llh(:,1))
+    fTime=zhidao_nearest(f_t(:,1),posi_llh(i,1));
+    idx=find(f_t(:,1)==fTime);
+    fIndex=floor(idx);
+    if fIndex==1
+        floor1=[floor1;pixel_(i,:) pixel_ac(i,:) fIndex posi_llh(i,:)]; 
+    elseif fIndex==2
+        floor2=[floor2;pixel_(i,:) pixel_ac(i,:) fIndex posi_llh(i,:)]; 
+    elseif fIndex==3
+        floor3=[floor3;pixel_(i,:) pixel_(i,:) fIndex posi_llh(i,:)]; 
+    elseif fIndex==4
+        floor4=[floor4;pixel_(i,:) pixel_(i,:) fIndex posi_llh(i,:)]; 
+    elseif fIndex==5
+        floor5=[floor5;pixel_(i,:) pixel_(i,:) fIndex posi_llh(i,:)]; 
+    end
+end
+for i=1:length(wifi_llh(:,1))
+    fTime=zhidao_nearest(f_t(:,1),wifi_llh(i,1));
+    idx=find(f_t(:,1)==fTime);
+    fIndex=floor(idx);
+    if fIndex==1
+        floor1_w=[floor1_w;wifi_pixel(i,:) fIndex wifi_llh(i,:)]; 
+    elseif fIndex==2
+        floor2_w=[floor2_w;wifi_pixel(i,:) fIndex wifi_llh(i,:)]; 
+    elseif fIndex==3
+        floor3_w=[floor3_w;wifi_pixel(i,:) fIndex wifi_llh(i,:)]; 
+    elseif fIndex==4
+        floor4_w=[floor4_w;wifi_pixel(i,:) fIndex wifi_llh(i,:)]; 
+    elseif fIndex==5
+        floor5_w=[floor5_w;wifi_pixel(i,:) fIndex wifi_llh(i,:)]; 
+    end
+end
+size(floor)
+
+

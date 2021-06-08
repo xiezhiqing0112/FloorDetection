@@ -1,0 +1,21 @@
+% This is a Calib File created with a Matlab GUI ("GUI_mapas")
+%
+% This file is used to store the calibration parameters that georeference several floormap images representing 
+% the indoor structure in a building in the WGS-84 datum coordinate reference frame. 
+%
+% A building is composed of several floors. Each floor has 6 calibration data:
+% 1) the filename of the bitmap
+% 2) the floor number (e.g. -2, 0, 3)
+% 3) the Building number (e.g. 1, 2, 3)
+% 4) Latidude (in degrees) of image center, 
+% 5) Longitude (in degrees) of image center, 
+% 6) Rotation (in degrees) of image to be aligned to the geometric north
+% 7) Scale (meters/pixel).
+
+lib_floor01.png lib_floor02.png lib_floor03.png lib_floor04.png lib_floor05.png 
+1 2 3 4 5 
+70 70 70 70 70 
+39.99373762 39.99373762 39.99373762 39.99373762 39.99373762 
+-0.06966314 -0.06966314 -0.06966314 -0.06966314 -0.06966314 
+0.000000000 0.000000000 0.000000000 0.000000000 0.000000000
+0.103600100 0.103600100 0.103600100 0.103600100 0.103600100
