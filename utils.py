@@ -43,3 +43,13 @@ def softmax(X: np.ndarray, theta=1.0, axis=None):
     if len(X.shape) == 1: p = p.flatten()
 
     return p
+
+
+import json
+
+json_data = json.load(open(r'/media/xzq/data-2/data/crow_server/magneticData/sampleData/mate8/140.0-420.0--146.0-610.0-2017-02-27-10-39-17-713.txt', encoding='utf-8'))
+
+save_path = r'/media/xzq/data-2/data/crow_server/magneticData/sampleData/mate8/140.0-420.0--146.0-610.0-2017-02-27-10-39-17-713.json'
+
+with open(save_path, 'w') as f:
+    json.dump(json_data, f, indent=4)

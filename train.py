@@ -10,7 +10,7 @@ def train_val_split(df_data: pd.DataFrame):
     columns = list(df_data.columns)
     columns.remove('label')
     X = df_data[columns]
-    Y = df_data['label']
+    Y = df_data['label'].map({-1: 0, 6: 1, 7: 2})
     X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.7, random_state=0)
     return X_train, X_test, Y_train, Y_test
 
@@ -79,7 +79,7 @@ def train_xgboost_kf(df_train: pd.DataFrame, is_kf=False):
         columns = list(df_train.columns)
         columns.remove('label')
         X = df_train[columns].values
-        Y = df_train['label'].values
+        Y = df_train['label'].map({-1: 0, 6: 1, 7: 2}).values
         kf = KFold(n_splits=5, shuffle=True)
         for train_index, test_index in kf.split(X):
             train_X, test_X = X[train_index], X[test_index]
@@ -90,7 +90,7 @@ def train_xgboost_kf(df_train: pd.DataFrame, is_kf=False):
                 'objective': 'multi:softprob',  # output each floor's prob
                 'eta': 0.1,
                 'slient': 1,
-                'num_class': 4,
+                'num_class': 3,
                 'max_depth': 8,
                 'nthread': 4,
                 'eval_metric': 'merror',
@@ -118,7 +118,7 @@ def train_xgboost_kf(df_train: pd.DataFrame, is_kf=False):
             'objective': 'multi:softprob',  # output each floor's prob
             'eta': 0.1,
             'slient': 1,
-            'num_class': 4,
+            'num_class': 3,
             'max_depth': 8,
             'nthread': 4,
             'eval_metric': 'merror',
@@ -136,16 +136,16 @@ def train_xgboost_kf(df_train: pd.DataFrame, is_kf=False):
         pd.DataFrame(pre_prob).to_csv("./output/result/result.csv")
         acc = accuracy_score(test_Y, pre)
         print(acc)
-        con_m = confusion_matrix(test_Y, pre, labels=[0, 1, 2, 3])
+        con_m = confusion_matrix(test_Y, pre, labels=[0, 1, 2])
         print('the confusion matrix:')
         print(con_m)
 
 
 if __name__ == '__main__':
-    df_train = pd.read_csv('/home/xzq/meituan/floor_detection/0904train.csv', header=None)
-    df_test = pd.read_csv('/home/xzq/meituan/floor_detection/ori_test0817_huawei_rssi.csv', header=None)
-    train_xgboost(df_train, df_test)  # 师姐之前的数据运行代码
+    # df_train = pd.read_csv('/home/xzq/meituan/floor_detection/0904train.csv', header=None)
+    # df_test = pd.read_csv('/home/xzq/meituan/floor_detection/ori_test0817_huawei_rssi.csv', header=None)
+    # train_xgboost(df_train, df_test)  # 师姐之前的数据运行代码
 
     # 从json中解析得到的数据
-    df_train = pd.read_csv(r'./utils/processed_data.csv')
-    train_xgboost(df_train, is_kf=True)
+    df_train = pd.read_csv(r'./processed_data.csv')
+    train_xgboost_kf(df_train, is_kf=False)

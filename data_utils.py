@@ -1,5 +1,7 @@
 """
-从P40采集的数据进行解析
+从 小米9 中采集的数据进行解析
+
+先获取所有mac, 再构建数据写入csv
 """
 import pandas as pd
 import numpy as np
@@ -8,7 +10,7 @@ import os
 
 macs = set()
 macs.add('label')
-root_dir = r'/media/xzq/data-2/data/crow_server/floor_data'
+root_dir = r'/media/xzq/data-2/data/crow_server/floor_data/ict'
 processed_csv_path = './processed_data.csv'
 for floor_name in os.listdir(root_dir):
     csv_path = os.path.join(root_dir, floor_name, 'network.csv')
