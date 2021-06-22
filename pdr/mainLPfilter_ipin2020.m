@@ -1,25 +1,5 @@
-% clear
-% close all
-% clc
-% filename='beikeda.csv';
-% filename='SensorLog_22117-10122018.csv';
-% addpath('csv_import')
-% if exist('trial.mat')
-%     load trial.mat
-% else
-%     [ttimestamp] = csvimport( filename,'delimiter',';','noHeader', false);
-%     ttimestamp=ttimestamp(2:length(ttimestamp),:);
-%     ttimestamp(:,17)=[];
-%     trial = cell2mat(ttimestamp);
-%       save trial;
-% end
-% Gyroscope=trial(:,7:9);
-% Accelerometer=trial(:,4:6);
-% Magnetometer=trial(:,10:12);
-
-
 file='ACCEGYROMAGNAHRS.csv';
-path='E:\PDR\IPIN\IPINDATA\Logfiles\01-Training\01a-Regular\T01_01/';
+path='E:\PDR\IPIN\IPINDATA\Logfiles\01-Training\01a-Regular\T01_04/';
 file_pos = 'POSI.csv';
 trial = importdata(strcat(path,file));
 trial =trial.data;
@@ -28,29 +8,8 @@ markpoint = markpoint.data;
 new_position=GPSToXY(markpoint(:,[3 4]));
 new_position=new_position-new_position(1,:);
 plot(new_position(:,1),new_position(:,2));
-% markpoint(:,[2 3])=markpoint(:,[3 2]);
-% longitudefactor = 85000;
-% latitudefactor = 110000;
-% X=zeros(length(markpoint),1);
-% Y=zeros(length(markpoint),1);
-% for i=2:length(markpoint)
-%     X(i)= (markpoint(i,2)-markpoint(1,2))*longitudefactor;
-%     Y(i)= (markpoint(i,3)-markpoint(1,3))*latitudefactor;
-% end
-% % figure
-% % plot(X,Y)
-% markpoint(:,2)=X;
-% markpoint(:,3)=Y;
-%     file='ipin2018/Logfiles/processed/Training/T02_02.txt'
-% trial=parseIPINdata(strcat(path,file));
- startTime=zhidao_nearest(trial(:,2),markpoint(1,1));
- startIndex=find(trial(:,2)==startTime);
-%  startIndex=4500;
-% 
-% 
-%   stopTime=zhidao_nearest(trial(:,2),markpoint(end,1)*1000);
-%  stopIndex=find(trial(:,2)==stopTime);
-%  stopIndex=0;
+startTime=zhidao_nearest(trial(:,2),markpoint(1,1));
+startIndex=find(trial(:,2)==startTime);
 trial=trial(startIndex:end,:);
 %  trial = flip(trial);
 addpath('SDK'); 
@@ -59,22 +18,6 @@ Accelerometer=trial(:,4:6);
 Magnetometer=trial(:,16:18);
 Euler = trial(:,22:24);
 Time = trial(:,2);
-
-
-%% 低通滤波 室内alpha=0.975   室外alpha=0.67
-% accc=zeros(length(Accelerometer),3);
-% mag=zeros(length(Magnetometer),3);
-% gyro=zeros(length(Gyroscope),3);
-% alpha=0.975;
-% 
-% for i=2:length(Accelerometer)
-%     accc(i,:) = alpha * accc(i-1,:) + (1 - alpha)* Accelerometer(i,:);
-%      mag(i,:) = alpha * mag(i-1,:) + (1 - alpha)* Magnetometer(i,:);
-%      gyro(i,:) = alpha * gyro(i-1,:) + (1 - alpha)* Gyroscope(i,:);
-% end
-
-%%
-
 gx=Gyroscope(:,1); %%陀螺仪数据
 gy=Gyroscope(:,2); 
 gz=Gyroscope(:,3); 
@@ -94,8 +37,9 @@ magNoG = mag - mean(mag);
 % Magnititude of gyroscope data from experiment data
 gyro = sqrt(gx.^2+gy.^2+gz.^2);
 % Samping frequency of experiment
-Fs = length(Time) / (Time(length(Time)) - Time(1))*1000;
+Fs = length(Time) / (Time(length(Time)) - Time(1));
 % Fs=100;
+
 %% Low pass filter Filter
 % All experiment data and reference data go through the same
 % lowpass fileter
@@ -118,11 +62,11 @@ LPFGx = filtfilt(b, a, gx);
 LPFGy = filtfilt(b, a, gy);
 LPFGz = filtfilt(b, a, gz);
 
-LPFGyro = filtfilt(b,a,gyro); % LPF output raw gyroscope data
+% LPFGyro = filtfilt(b,a,gyro); % LPF output raw gyroscope data
 
-Accelerometer=[LPFAx,LPFAy,LPFAz];
-Gyroscope=[LPFGx,LPFGy,LPFGz];
-Magnetometer=[LPFMx,LPFMy,LPFMz];
+% Accelerometer=[LPFAx,LPFAy,LPFAz];
+% Gyroscope=[LPFGx,LPFGy,LPFGz];
+% Magnetometer=[LPFMx,LPFMy,LPFMz];
 gx=Gyroscope(:,1); %%陀螺仪数据
 gy=Gyroscope(:,2); 
 gz=Gyroscope(:,3); 
@@ -138,6 +82,7 @@ deg2rad=pi/180;
 % time(1)=0;
 quaternion = zeros(length(Time), 4);
 %% Process sensor data through algorithm
+
 % 使用下标为index的样本计算初始方向
 index=20;
 Pitch0=asin(ax(index)/sqrt(ax(index)*ax(index)+ay(index)*ay(index)+az(index)*az(index)));%初始角计算
@@ -160,23 +105,7 @@ Beta=0.009;                                    %梯度下降法梯度步长设置
 Kp=0.5;Ki=0.5;                                  %叉积法比例积分系数设置
 eInt(1,:)=[0 0 0];                            %叉积法误差初值
 Length= size(trial,1);   
-
-% for t = 2:Length
-%     tic;
-% %     q(t,:) = madgwickAHRS(Gyroscope(t,:), Accelerometer(t,:), Magnetometer(t,:),q(t-1, :),Beta,SamplePeriod);	%梯度下降法  
-%    [q(t,:),eInt(t,:)] = MahonyAHRSupdate( Gyroscope(t,:), Accelerometer(t,:), Magnetometer(t,:),q(t-1, :),SamplePeriod,Ki,Kp,eInt(t-1,:));%Mahony法
-%     tt(t)=toc;%计算算法运行时间
-%     
-%     T=[ 1 - 2 * (q(t,4) *q(t,4) + q(t,3) * q(t,3)) 2 * (q(t,2) * q(t,3) +q(t,1) * q(t,4)) 2 * (q(t,2) * q(t,4)-q(t,1) * q(t,3));
-%         2 * (q(t,2) * q(t,3)-q(t,1) * q(t,4)) 1 - 2 * (q(t,4) *q(t,4) + q(t,2) * q(t,2)) 2 * (q(t,3) * q(t,4)+q(t,1) * q(t,2));
-%         2 * (q(t,2) * q(t,4) +q(t,1) * q(t,3)) 2 * (q(t,3) * q(t,4)-q(t,1) * q(t,2)) 1 - 2 * (q(t,2) *q(t,2) + q(t,3) * q(t,3))];%cnb
-%     Roll(t)  = atan2(T(2,3),T(3,3))*rad2deg;
-%     Pitch(t) = asin(-T(1,3))*rad2deg;
-%     Yaw(t)   = atan2(T(1,2),T(1,1))*rad2deg-8.3;  
-% end
-% plot(Yaw);
-
- addpath('quaternion_library');      % include quaternion library
+addpath('quaternion_library');      % include quaternion library
 
 % addpath('direction')
 % [ fusedOrientation ] = fuseSensors( Accelerometer, Magnetometer, Gyroscope, trial(:,1) );
@@ -294,15 +223,18 @@ StepLengthArr=[];
 orientation=[];
 yaw_get=[];
 ftime=[];
-for k = 1:StepCount-1
+turn_flag = [];
+
+
+for k = 1:StepCount-3
     pos_start = PeakLocation(k);
     pos_end = PeakLocation(k+1);
-    % orientation (yaw)
-    YawSin = mean(yaw(pos_start:pos_end,2));
-    YawCos = mean(yaw(pos_start:pos_end,3));
-    orientation(k,1:4)=[mean(yaw(pos_start:pos_end,2)),mean(yaw(pos_start:pos_end,3)),mean(euler(pos_start:pos_end,3)),mean(euler(pos_start:pos_end,3))];
-%     yaw_save(k)=YawCos;
-    ftime(k)=trial(pos_start,2);
+    yaw_diff = max(Euler(PeakLocation(k):PeakLocation(k+3),3)) - min(Euler(PeakLocation(k):PeakLocation(k+3),3));
+    if yaw_diff >65
+        turn_flag = [turn_flag, k+1];
+    end
+    YawSin = mean(Euler(pos_start:pos_end,3));
+    YawCos = mean(Euler(pos_start:pos_end,3));
     % step length estimation
     % SL = 0.2844 + 0.2231*frequency + 0.0426*AV
     StepFreq = 1000/(PkValue(k)*2);
@@ -326,9 +258,11 @@ for k = 1:StepCount-1
 %       pause(0.01)
 end
 figure
-scatter(PositionX,PositionY,'b'); grid on; 
-hold on;
-plot(markpoint(:,2),markpoint(:,3));
+plot(PositionX,PositionY,'b'); grid on; 
+hold on 
+scatter(PositionX(turn_flag),PositionY(turn_flag),'r');
+% hold on;
+% plot(markpoint(:,2),markpoint(:,3));
 % plot(X,Y,'r')
 % distance
 %  sqrt(PositionX(end)*PositionX(end)+PositionY(end)*PositionY(end))
@@ -342,8 +276,7 @@ plot(markpoint(:,2),markpoint(:,3));
 %     idx(i)=find(deltat==min(deltat));
 % end
 % figure
-% yaw_save = yaw_save(PeakLocation);
-% plot(yaw_save(idx(2:end))-yaw_save(idx(1:end-1)));
+% yaw_save = yaw_save(PeakLocation);+-1)));
 % figure
 % plot(delta_yaw,'r')
 %  figure
