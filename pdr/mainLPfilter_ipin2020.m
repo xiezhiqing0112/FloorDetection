@@ -1,5 +1,5 @@
 file='ACCEGYROMAGNAHRS.csv';
-path='E:\PDR\IPIN\IPINDATA\Logfiles\01-Training\01a-Regular\T01_04/';
+path='E:\PDR\IPIN\IPINDATA\Logfiles\01-Training\01a-Regular\T01_01/';
 file_pos = 'POSI.csv';
 trial = importdata(strcat(path,file));
 trial =trial.data;
@@ -9,7 +9,8 @@ new_position=GPSToXY(markpoint(:,[3 4]));
 new_position=new_position-new_position(1,:);
 plot(new_position(:,1),new_position(:,2));
 startTime=zhidao_nearest(trial(:,2),markpoint(1,1));
-startIndex=find(trial(:,2)==startTime);
+% startIndex=find(trial(:,2)==startTime);
+startIndex=11001;
 trial=trial(startIndex:end,:);
 %  trial = flip(trial);
 addpath('SDK'); 
@@ -258,9 +259,9 @@ for k = 1:StepCount-3
 %       pause(0.01)
 end
 figure
-plot(PositionX,PositionY,'b'); grid on; 
-hold on 
-scatter(PositionX(turn_flag),PositionY(turn_flag),'r');
+scatter(PositionX,PositionY,'b'); grid on; 
+% hold on 
+% scatter(PositionX(turn_flag),PositionY(turn_flag),'r');
 % hold on;
 % plot(markpoint(:,2),markpoint(:,3));
 % plot(X,Y,'r')

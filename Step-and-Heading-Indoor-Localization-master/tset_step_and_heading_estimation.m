@@ -3,300 +3,166 @@ close all
 clear variables
 
 PLOTTER = true;
-data_set_name = 'lopen1.2';
-
-%% ================== load Data ======================
-if strcmp(data_set_name, 'lopen1.2' )
-    shs_sample = loadAndroidDataset('datasets/marie testing/lopen1.2/lopen1_2/');
-    
-    % load calibration data
-    calib_samples.mag_calib_sample = loadAndroidDataset('datasets/marie testing/lopen1.2/calib_mag/');
-    calib_samples.gyr_calib_sample = loadAndroidDataset('datasets/marie testing/lopen1.2/noise/');
-    calib_samples.acc_calib_sample = loadAndroidDataset('datasets/marie testing/lopen1.2/calib_acc/');
-    
-    % load magnetic north data
-    magnetic_north_sample = loadAndroidDataset('datasets/marie testing/lopen1.2/noise/');
-    
-    % load noise sample
-    noise_sample = loadAndroidDataset('datasets/marie testing/lopen1.2/noise/');
-end
-
-%%
-
-if strcmp(data_set_name, 'lopen1.1' )
-    shs_sample = loadAndroidDataset('datasets/marie testing/lopen1.1/lopen1_1/');
-    
-    % load calibration data
-    calib_samples.mag_calib_sample = loadAndroidDataset('datasets/marie testing/lopen1.1/calib_mag/');
-    calib_samples.gyr_calib_sample = loadAndroidDataset('datasets/marie testing/lopen1.1/noise/');
-    calib_samples.acc_calib_sample = loadAndroidDataset('datasets/marie testing/lopen1.1/calib_acc/');
-    
-    % load magnetic north data
-    magnetic_north_sample = loadAndroidDataset('datasets/marie testing/lopen1.1/noise/');
-    
-    % load noise sample
-    noise_sample = loadAndroidDataset('datasets/marie testing/lopen1.1/noise/');
-end
-
-%%
-
-if strcmp(data_set_name, 'inside_walking_record_ns_marie' )
-    shs_sample = loadAndroidDataset('datasets/one plus nord/20 October stationary/walking_around_door_record/');
-    
-    % load calibration data
-    calib_samples.mag_calib_sample = loadAndroidDataset('datasets/one plus nord/20 October stationary/calib_mag/');
-    calib_samples.gyr_calib_sample = loadAndroidDataset('datasets/one plus nord/20 October stationary/noise/');
-    calib_samples.acc_calib_sample = loadAndroidDataset('datasets/one plus nord/20 October stationary/calib_acc/');
-    
-    % load magnetic north data
-    magnetic_north_sample = loadAndroidDataset('datasets/one plus nord/20 October stationary/noise/');
-    
-    % load noise sample
-    noise_sample = loadAndroidDataset('datasets/one plus nord/20 October stationary/noise/');
-end
-
-%%
-
-if strcmp(data_set_name, 'inside_walking_ns_marie' )
-    shs_sample = loadAndroidDataset('datasets/one plus nord/20 October stationary/binnen_lopen_1_geen_smartwatch/');
-    
-    % load calibration data
-    calib_samples.mag_calib_sample = loadAndroidDataset('datasets/one plus nord/20 October stationary/calib_mag/');
-    calib_samples.gyr_calib_sample = loadAndroidDataset('datasets/one plus nord/20 October stationary/noise/');
-    calib_samples.acc_calib_sample = loadAndroidDataset('datasets/one plus nord/20 October stationary/calib_acc/');
-    
-    % load magnetic north data
-    magnetic_north_sample = loadAndroidDataset('datasets/one plus nord/20 October stationary/noise/');
-    
-    % load noise sample
-    noise_sample = loadAndroidDataset('datasets/one plus nord/20 October stationary/noise/');
-end
-%%
-if strcmp(data_set_name, 'inside_stationary_marie' )
-    shs_sample = loadAndroidDataset('datasets/one plus nord/20 October stationary/stationary_test/');
-    
-    % load calibration data
-    calib_samples.mag_calib_sample = loadAndroidDataset('datasets/one plus nord/20 October stationary/calib_mag/');
-    calib_samples.gyr_calib_sample = loadAndroidDataset('datasets/one plus nord/20 October stationary/noise/');
-    calib_samples.acc_calib_sample = loadAndroidDataset('datasets/one plus nord/20 October stationary/calib_acc/');
-    
-    % load magnetic north data
-    magnetic_north_sample = loadAndroidDataset('datasets/one plus nord/20 October stationary/noise/');
-    
-    % load noise sample
-    noise_sample = loadAndroidDataset('datasets/one plus nord/20 October stationary/noise/');
-end
-
-
-%% walking outside dataset
-
-if strcmp(data_set_name, 'outside' )
-    shs_sample = loadAndroidDataset('datasets/one plus nord/13 October/two_times_around_the_block/');
-    
-    % load calibration data
-    calib_samples.mag_calib_sample = loadAndroidDataset('datasets/one plus nord/13 October/calib_mag/');
-    calib_samples.gyr_calib_sample = loadAndroidDataset('datasets/one plus nord/13 October/calib_gyr/');
-    calib_samples.acc_calib_sample = loadAndroidDataset('datasets/one plus nord/13 October/calib_acc/');
-    
-    % load magnetic north data
-    magnetic_north_sample = loadAndroidDataset('datasets/one plus nord/13 October/magnetic_north_buiten/');
-    
-    % load noise sample
-    noise_sample = loadAndroidDataset('datasets/one plus nord/13 October/magnetic_north_buiten/');
-end
-%%
-if strcmp(data_set_name, 'stationary' )
-    shs_sample = loadAndroidDataset('datasets/one plus nord/15 October/stationary_test/');
-    
-    % load calibration data
-    calib_samples.mag_calib_sample = loadAndroidDataset('datasets/one plus nord/15 October/calib_mag/');
-    calib_samples.gyr_calib_sample = loadAndroidDataset('datasets/one plus nord/15 October/calib_gyr/');
-    calib_samples.acc_calib_sample = loadAndroidDataset('datasets/one plus nord/15 October/calib_acc/');
-    
-    % load magnetic north data
-    magnetic_north_sample = loadAndroidDataset('datasets/one plus nord/15 October/noise/');
-    
-    % load noise sample
-    noise_sample = loadAndroidDataset('datasets/one plus nord/15 October/noise/');
-end
-%%
-if strcmp(data_set_name, 'inside' )
-    shs_sample = loadAndroidDataset('datasets/one plus nord/15 October walking/walking_inside/');
-    
-    % load calibration data
-    calib_samples.mag_calib_sample = loadAndroidDataset('datasets/one plus nord/15 October walking/calib_mag/');
-    calib_samples.gyr_calib_sample = loadAndroidDataset('datasets/one plus nord/15 October walking/calib_gyr/');
-    calib_samples.acc_calib_sample = loadAndroidDataset('datasets/one plus nord/15 October walking/calib_acc/');
-    
-    % load magnetic north data
-    magnetic_north_sample = loadAndroidDataset('datasets/one plus nord/15 October walking/noise/');
-    
-    % load noise sample
-    noise_sample = loadAndroidDataset('datasets/one plus nord/15 October walking/noise/');
-end
-%%
-if strcmp(data_set_name, 'inside tracked' )
-    shs_sample = loadAndroidDataset('datasets/one plus nord/17 October/walking_around_inside/');
-    
-    % load calibration data
-    calib_samples.mag_calib_sample = loadAndroidDataset('datasets/one plus nord/17 October/calib_mag/');
-    calib_samples.gyr_calib_sample = loadAndroidDataset('datasets/one plus nord/17 October/laying_on_the_floor/');
-    calib_samples.acc_calib_sample = loadAndroidDataset('datasets/one plus nord/17 October/calib_acc/');
-    
-    % load magnetic north data
-    magnetic_north_sample = loadAndroidDataset('datasets/one plus nord/17 October/laying_on_the_floor/');
-    
-    % load noise sample
-    noise_sample = loadAndroidDataset('datasets/one plus nord/17 October/laying_on_the_floor/');
-end
-
+file='ACCEGYROMAGNAHRS.csv';
+path='E:\PDR\IPIN\IPINDATA\Logfiles\01-Training\01a-Regular\T01_01/';
+trial = importdata(strcat(path,file));
+trial =trial.data;
+calib_index = 1:7000;
+noise_index = 7001:11000;
+walk_index = 11001:length(trial);
+Gyroscope=trial(:,10:12);
+Accelerometer=trial(:,4:6);
+Magnetometer=trial(:,16:18);
+Euler = trial(:,22:24);
 %% -------- PLOTTER: shs raw imu sample
-target = shs_sample;
 if PLOTTER
     figure
-    sgtitle('SHS sample raw IMU data')
         subplot(3,1,1)    
-        stackedplot(target.raw_imu.accelerometer)
+        stackedplot(Accelerometer(walk_index,:))
         title('raw imu data - accelerometer')
         subplot(3,1,2)    
-        stackedplot(target.raw_imu.gyroscope)
+        stackedplot(Gyroscope(walk_index,:))
         title('raw imu data - gyroscope')
         subplot(3,1,3)
-        stackedplot(target.raw_imu.magnetometer)
+        stackedplot(Magnetometer(walk_index,:))
         title('raw imu data - magnetometer')
+    sgtitle('SHS sample raw IMU data')
     set(gcf,'position',[ 1434    138    548   489])
 end
 
 %% -------- PLOTTER: shs magnetic north raw data 
-target = magnetic_north_sample;
-if PLOTTER
-    figure
-    sgtitle('magnetic north sample raw IMU data')
-        subplot(3,1,1)    
-        stackedplot(target.raw_imu.accelerometer)
-        title('raw imu data - accelerometer')
-        subplot(3,1,2)    
-        stackedplot(target.raw_imu.gyroscope)
-        title('raw imu data - gyroscope')
-        subplot(3,1,3)
-        stackedplot(target.raw_imu.magnetometer)
-        title('raw imu data - magnetometer')
-    set(gcf,'position',[ 1434    138    548   489])
-end
+% if PLOTTER
+%     figure
+%     sgtitle('magnetic north sample raw IMU data')
+%         subplot(3,1,1)    
+%         stackedplot(target.raw_imu.accelerometer)
+%         title('raw imu data - accelerometer')
+%         subplot(3,1,2)    
+%         stackedplot(target.raw_imu.gyroscope)
+%         title('raw imu data - gyroscope')
+%         subplot(3,1,3)
+%         stackedplot(target.raw_imu.magnetometer)
+%         title('raw imu data - magnetometer')
+%     set(gcf,'position',[ 1434    138    548   489])
+% end
 
 %% ================= CALIBRATING SENSOR DATA ==========================
 %% Magnetometer calibration
-clc
-disp('Calibrating magnetometer sensor data')
-
-mag_raw = calib_samples.mag_calib_sample.raw_imu.magnetometer{:,:};
-
-N=size(mag_raw,1);
-M=ones(N,13);
-for i=1:N
-    M(i,1:9)=kron(mag_raw(i,:),mag_raw(i,:));
-    M(i,10:12)=mag_raw(i,:);
-end
-
-cvx_begin
-    variable A(3,3)
-    variable b(3,1)
-    variable c(1,1)
-    minimize(norm( M * [vec(A) ; b ; c] , 2 ) )
-    subject to
-    trace(A) == 1
-    A-0.0001*eye(3) == semidefinite(3)
-cvx_end
-
-invDT_invD = inv(0.25 * b' *inv(A) * b - c) *A;
-invD = chol(invDT_invD);
-bias = -0.5* inv(A) * b ;
-
-mag_bias = bias;
-mag_invD = invD;
-
-calib_mag = mag_invD*(shs_sample.raw_imu.magnetometer{:,1:3}'- mag_bias);
-calib_mag_data = timetable(shs_sample.raw_imu.magnetometer.Time);
-calib_mag_data.X = calib_mag(1,:)';
-calib_mag_data.Y = calib_mag(2,:)';
-calib_mag_data.Z = calib_mag(3,:)';
-
-% Magnetic North Calibration
-calib_mag_north = mag_invD*(magnetic_north_sample.raw_imu.magnetometer{:,1:3}'- mag_bias);
-calib_mag_north_data = timetable(magnetic_north_sample.raw_imu.magnetometer.Time);
-calib_mag_north_data.X = calib_mag_north(1,:)';
-calib_mag_north_data.Y = calib_mag_north(2,:)';
-calib_mag_north_data.Z = calib_mag_north(3,:)';
+% clc
+% disp('Calibrating magnetometer sensor data')
+% 
+% mag_raw = Magnetometer(calib_index,:);
+% 
+% N=size(mag_raw,1);
+% M=ones(N,13);
+% for i=1:N
+%     M(i,1:9)=kron(mag_raw(i,:),mag_raw(i,:));
+%     M(i,10:12)=mag_raw(i,:);
+% end
+% 
+% cvx_begin
+%     variable A(3,3)
+%     variable b(3,1)
+%     variable c(1,1)
+%     minimize(norm( M * [vec(A) ; b ; c] , 2 ) )
+%     subject to
+%     trace(A) == 1
+%     A-0.0001*eye(3) == semidefinite(3)
+% cvx_end
+% 
+% invDT_invD = inv(0.25 * b' *inv(A) * b - c) *A;
+% invD = chol(invDT_invD);
+% bias = -0.5* inv(A) * b ;
+% 
+% mag_bias = bias;
+% mag_invD = invD;
+% 
+% calib_mag = mag_invD*(Magnetometer(walk_index,:)'- mag_bias);
+% Time_mag = datetime(trial(walk_index,15), 'ConvertFrom', 'posixtime' ,'TimeZone', 'local','Format','HH:mm:ss.SSS');
+% calib_mag_data = timetable(Time_mag);
+% calib_mag_data.X = calib_mag(:,1);
+% calib_mag_data.Y = calib_mag(:,2);
+% calib_mag_data.Z = calib_mag(:,3);
+% 
+% % Magnetic North Calibration
+calib_mag_north =Magnetometer(walk_index,:);
+% Time_mag_north = datetime(trial(calib_index,15), 'ConvertFrom', 'posixtime' ,'TimeZone', 'local','Format','HH:mm:ss.SSS');
+calib_mag_data = timetable('SampleRate',200);
+calib_mag_data.X = calib_mag_north(:,1);
+calib_mag_data.Y = calib_mag_north(:,2);
+calib_mag_data.Z = calib_mag_north(:,3);
 
 %% -------- PLOTTER: magnetometer calibration
 % magnetometer calib data calibration
-calib_mag_calib = mag_invD*(mag_raw'- mag_bias);
-
-figure()
-hold on
-scatter3(calib_mag_calib(1,:),calib_mag_calib(2,:),calib_mag_calib(3,:),'r')
-scatter3(calib_mag(1,:),calib_mag(2,:),calib_mag(3,:),'b')
-scatter3(calib_mag_north(1,:),calib_mag_north(2,:),calib_mag_north(3,:),'g')
-hold off
-xlim([-1,1])
-ylim([-1,1])
-zlim([-1,1])
-legend('calibrated calibration data','calibrated SHS data','calibrated magnetic north')
-title('Calibrated Magnetometer Data')
-
-%% Accelerometer Calibration
-
-acc_raw = calib_samples.acc_calib_sample.raw_imu.accelerometer{:,:};
-
-N = size(acc_raw,1);
-M=ones(N,13);
-
-for i=1:N
-    M(i,1:9)=kron(acc_raw(i,:),acc_raw(i,:));
-    M(i,10:12)=acc_raw(i,:);
-end
-
-cvx_begin
-    variable A(3,3)
-    variable b(3,1)
-    variable c(1,1)
-    minimize( norm( M * [vec(A) ; b ; c] , 2 ) )
-    subject to
-    trace(A) == 1
-    A-0.0001*eye(3) == semidefinite(3)
-cvx_end
-
-invDT_invD = inv(0.25 * ( b' / A * b ) - c) * A;
-acc_invD = chol(invDT_invD);
-acc_bias = -0.5* ( A \ b );
-
-calib_acc = acc_invD*(shs_sample.raw_imu.accelerometer{:,1:3}'- acc_bias);
-calib_acc = calib_acc.* 9.81;
-calib_acc_data = timetable(shs_sample.raw_imu.accelerometer.Time);
-calib_acc_data.X = calib_acc(1,:)';
-calib_acc_data.Y = calib_acc(2,:)';
-calib_acc_data.Z = calib_acc(3,:)';
-
-%% -------- PLOTTER: accelerometer calibration
-
-% magnetometer calib data calibration
-calib_acc_calib = 9.81*acc_invD*(acc_raw'- acc_bias);
-
-figure()
-hold on
-scatter3(calib_acc_calib(1,:),calib_acc_calib(2,:),calib_acc_calib(3,:),'r')
-scatter3(calib_acc(1,:),calib_acc(2,:),calib_acc(3,:),'b')
-hold off
+% calib_mag_calib = mag_invD*(mag_raw'- mag_bias);
+% 
+% figure()
+% hold on
+% scatter3(calib_mag_calib(1,:),calib_mag_calib(2,:),calib_mag_calib(3,:),'r')
+% scatter3(calib_mag(1,:),calib_mag(2,:),calib_mag(3,:),'b')
+% scatter3(calib_mag_north(1,:),calib_mag_north(2,:),calib_mag_north(3,:),'g')
+% hold off
 % xlim([-1,1])
 % ylim([-1,1])
 % zlim([-1,1])
-legend('calibrated calibration data','calibrated SHS data')
-title('Calibrated Accelerometer Data')
+% legend('calibrated calibration data','calibrated SHS data','calibrated magnetic north')
+% title('Calibrated Magnetometer Data')
+
+%% Accelerometer Calibration
+
+% acc_raw = Accelerometer(calib_index,:);
+% 
+% N = size(acc_raw,1);
+% M=ones(N,13);
+% 
+% for i=1:N
+%     M(i,1:9)=kron(acc_raw(i,:),acc_raw(i,:));
+%     M(i,10:12)=acc_raw(i,:);
+% end
+% 
+% cvx_begin
+%     variable A(3,3)
+%     variable b(3,1)
+%     variable c(1,1)
+%     minimize( norm( M * [vec(A) ; b ; c] , 2 ) )
+%     subject to
+%     trace(A) == 1
+%     A-0.0001*eye(3) == semidefinite(3)
+% cvx_end
+% 
+% invDT_invD = inv(0.25 * ( b' / A * b ) - c) * A;
+% acc_invD = chol(invDT_invD);
+% acc_bias = -0.5* ( A \ b );
+% 
+calib_acc = Accelerometer(walk_index,:);
+% calib_acc = calib_acc.* 9.81;
+% Time_acc = datetime(trial(walk_index,3), 'ConvertFrom', 'posixtime' ,'TimeZone', 'local','Format','HH:mm:ss.SSS');
+calib_acc_data = timetable('SampleRate',200);
+calib_acc_data.X = calib_acc(:,1);
+calib_acc_data.Y = calib_acc(:,2);
+calib_acc_data.Z = calib_acc(:,3);
+
+%% -------- PLOTTER: accelerometer calibration
+
+% % magnetometer calib data calibration
+% calib_acc_calib = 9.81*acc_invD*(acc_raw'- acc_bias);
+% 
+% figure()
+% hold on
+% scatter3(calib_acc_calib(1,:),calib_acc_calib(2,:),calib_acc_calib(3,:),'r')
+% scatter3(calib_acc(1,:),calib_acc(2,:),calib_acc(3,:),'b')
+% hold off
+% % xlim([-1,1])
+% % ylim([-1,1])
+% % zlim([-1,1])
+% legend('calibrated calibration data','calibrated SHS data')
+% title('Calibrated Accelerometer Data')
 
 %% Gyroscope Calibration
-gyr_bias = mean(calib_samples.gyr_calib_sample.raw_imu.gyroscope{:,:});
-calib_gyr = shs_sample.raw_imu.gyroscope{:,1:3}-gyr_bias;
-calib_gyr_data = timetable(shs_sample.raw_imu.gyroscope.Time);
+gyr_bias = mean(Gyroscope(noise_index,:))
+calib_gyr = Gyroscope(walk_index,:)-gyr_bias;
+% Time_gyr = datetime(trial(walk_index,9), 'ConvertFrom', 'posixtime' ,'TimeZone', 'local','Format','HH:mm:ss.SSS');
+calib_gyr_data = timetable('SampleRate',200);
 calib_gyr_data.X = calib_gyr(:,1);
 calib_gyr_data.Y = calib_gyr(:,2);
 calib_gyr_data.Z = calib_gyr(:,3);
@@ -305,28 +171,28 @@ calib_gyr_data.Z = calib_gyr(:,3);
 acc_data = calib_acc_data;
 gyro_data = calib_gyr_data;
 mag_data = calib_mag_data;
-dev_comp_attitude = shs_sample.device_computed.attitude;
+dev_comp_attitude = trial(walk_index,22:24);
 
 
 %% finding variance orientation
 
-noise_calib_mag = mag_invD*(noise_sample.raw_imu.magnetometer{:,1:3}'- mag_bias);
-noise_mag_data = timetable(noise_sample.raw_imu.magnetometer.Time);
-noise_mag_data.X = noise_calib_mag(1,:)';
-noise_mag_data.Y = noise_calib_mag(2,:)';
-noise_mag_data.Z = noise_calib_mag(3,:)';
+noise_calib_mag =  Magnetometer(noise_index,:);
+noise_mag_data = timetable('SampleRate',200);
+noise_mag_data.X = noise_calib_mag(:,1);
+noise_mag_data.Y = noise_calib_mag(:,2);
+noise_mag_data.Z = noise_calib_mag(:,3);
 
 % Accelerometer Calibration
-noise_calib_acc = acc_invD*(noise_sample.raw_imu.accelerometer{:,1:3}'- acc_bias);
-noise_calib_acc = noise_calib_acc.* 9.81;
-noise_acc_data = timetable(noise_sample.raw_imu.accelerometer.Time);
-noise_acc_data.X = noise_calib_acc(1,:)';
-noise_acc_data.Y = noise_calib_acc(2,:)';
-noise_acc_data.Z = noise_calib_acc(3,:)';
+noise_calib_acc = Accelerometer(noise_index,:);
+% noise_calib_acc = noise_calib_acc.* 9.81;
+noise_acc_data = timetable('SampleRate',200);
+noise_acc_data.X = noise_calib_acc(:,1);
+noise_acc_data.Y = noise_calib_acc(:,2);
+noise_acc_data.Z = noise_calib_acc(:,3);
 
 % Gyroscope Calibration
-noise_calib_gyr = noise_sample.raw_imu.gyroscope{:,1:3}-gyr_bias;
-noise_gyro_data = timetable(noise_sample.raw_imu.gyroscope.Time);
+noise_calib_gyr = Gyroscope(noise_index,:);
+noise_gyro_data = timetable('SampleRate',200);
 noise_gyro_data.X = noise_calib_gyr(:,1);
 noise_gyro_data.Y = noise_calib_gyr(:,2);
 noise_gyro_data.Z = noise_calib_gyr(:,3);  
@@ -343,7 +209,7 @@ if PLOTTER
         subplot(3,1,1)    
         stackedplot(noise_acc_data)
         title('raw imu data - accelerometer')
-        subplot(3,1,2)    
+        subplot(3,1,2)
         stackedplot(noise_gyro_data)
         title('raw imu data - gyroscope')
         subplot(3,1,3)
@@ -354,7 +220,23 @@ end
 
 %% Extended Kalman Filter
 
-%  prior estimate
+
+% Time_acc = datetime(trial(walk_index,3), 'ConvertFrom', 'posixtime' ,'TimeZone', 'local','Format','HH:mm:ss.SSS');
+% calib_acc_data = timetable(Time_acc);
+% calib_acc_data.X = acc_data(:,1);
+% calib_acc_data.Y = acc_data(:,2);
+% calib_acc_data.Z = acc_data(:,3);
+% Time_mag = datetime(trial(walk_index,15), 'ConvertFrom', 'posixtime' ,'TimeZone', 'local','Format','HH:mm:ss.SSS');
+% calib_mag_data = timetable(Time_mag);
+% calib_mag_data.X = mag_data(:,1);
+% calib_mag_data.Y = mag_data(:,2);
+% calib_mag_data.Z = mag_data(:,3);
+% 
+% combined_raw = [acc_data; mag_data; gyro_data];
+% combined_raw = sortrows(combined_raw);
+%  Types = categorical({'GYR','ACC', 'MAG'});
+ 
+ %  prior estimate
 prior_est = [1,0,0,0]';
 % prior_est = [dev_comp_attitude{4,:}]';
 
@@ -381,7 +263,7 @@ combined = [combined_raw.X, combined_raw.Y, combined_raw.Z]';
 type = [combined_raw.Type];
 
 dT = [0; seconds(diff(gyro_data.Time))];
-Time = convertTo(combined_raw.Time_acc,'posixtime');
+Time = combined_raw.Time;
 
 
 estimate = repmat(struct('Time', nan, ...
@@ -495,7 +377,8 @@ end
 estimate = struct2table(estimate);
 estimate.Time = seconds(estimate.Time);
 ekf_estimate = table2timetable(estimate);
-    
+
+
 %% Error plotting
 ekf_acc_errors  = ekf_estimate(ekf_estimate.type=='ACC',:);
 ekf_mag_errors  = ekf_estimate(ekf_estimate.type=='MAG',:);
@@ -670,6 +553,8 @@ target = timetable(shs_sample.device_computed.attitude.Time);
 target.est = shs_sample.device_computed.attitude{:,:};
 target = retime(target,unique(ekf_estimate.Time),'linear');
 [og_positions1, step_orient1] = plotTrajectory(target,shs,door_handle_use);
+
+
 
 %% Functions
 
