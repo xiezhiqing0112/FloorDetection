@@ -2,7 +2,6 @@ import numpy as np
 import os
 import json
 
-
 def get_rotation_matrix(gravity: np.ndarray, geomagnetic: np.ndarray):
     """
         返回：

@@ -7,7 +7,7 @@ from mapping.utils import get_rotation_matrix, get_orientation, to_degree
 turn_threshold = 65
 
 
-def get_step_list(pd_data: pd.DataFrame):
+def get_step_list(pd_data: pd.DataFrame, save_dir, base_name):
     ret_info = dict()
     pk_values, pk_locations = state_step_detection(pd_data)
     pitchs, rolls, yaws = pd_data['PitchX(deg)'].values, pd_data['RollY(deg)'].values, pd_data['YawZ(deg)'].values
@@ -25,23 +25,51 @@ def get_step_list(pd_data: pd.DataFrame):
     start_x = 0
     start_y = 0
     step_list = []
-    for i, pk_location in enumerate(pk_locations):
+    step_nums = len(pk_values)
+    current_num = 0
+    save_index = 0
+    atom_steps = 0
+    for step_index in range(step_nums - 3):
         step_info = dict()
-        current_num = i + 1
+        current_num = current_num + 1
         is_turn = False
-        start_index, end_index = pk_values[i], pk_values[i] + pk_location
+        start_index, end_index = pk_values[step_index], pk_values[step_index + 3]
         pitch = pitchs[start_index: end_index]
         roll = rolls[start_index: end_index]
         yaw = yaws[start_index: end_index]
+        # 统计到拐弯
         if (pitch.max() - pitch.min() > turn_threshold) \
                 or (roll.max() - roll.min() > turn_threshold) \
                 or (yaw.max() - yaw.min() > turn_threshold):
             is_turn = True
-            current_num = current_num - 1
+            current_num = 0
+            if step_info.__len__ == 0 or atom_steps < 3:
+                continue
+            ret_info = {
+                "endX": end_x,
+                "endY": end_y,
+                "stepLength": step_length,
+                "name": "%s_%d_ACCEGYROMAGNAHRS.txt" % (base_name, save_index),
+                "orientation": orientations[pk_values[step_index - atom_steps]: start_index],
+                "phoneBrand": phone_brand,
+                "startX": start_x,
+                "startY": start_y,
+                "stepList": step_list
+            }
+
+            print("保存 %d 条原子路径 ...." % save_index)
+            save_path = os.path.join(save_dir, "%s_%d.txt" % (base_name, save_index))
+            with open(save_path, 'w') as f:
+                json.dump(ret_info, f, indent=4)
+            step_list.clear()
+            save_index += 1
+            atom_steps = 0
             continue
-        x_mag = x_mags[start_index: end_index]
-        y_mag = y_mags[start_index: end_index]
-        z_mag = z_mags[start_index: end_index]
+
+        # 没有检测到拐弯
+        x_mag = x_mags[start_index: pk_values[step_index + 1]]
+        y_mag = y_mags[start_index: pk_values[step_index + 1]]
+        z_mag = z_mags[start_index: pk_values[step_index + 1]]
         step_info.update({
             "currentNum": current_num,
             "isTurn": is_turn,
@@ -52,19 +80,8 @@ def get_step_list(pd_data: pd.DataFrame):
             "yMagnetic": y_mag.tolist(),
             "zMagnetic": z_mag.tolist()
         })
+        atom_steps += 1
         step_list.append(step_info)
-    ret_info.update({
-        "endX": end_x,
-        "endY": end_y,
-        "stepLength": step_length,
-        "name": "ACCEGYROMAGNAHRS.txt",
-        "orientation": orientations,
-        "phoneBrand": phone_brand,
-        "startX": start_x,
-        "startY": start_y,
-        "stepList": step_list
-    })
-    return ret_info
 
 
 if __name__ == '__main__':
@@ -81,7 +98,4 @@ if __name__ == '__main__':
         if os.path.isdir(os.path.join(data_root, name)):
             csv_path = os.path.join(data_root, name, 'ACCEGYROMAGNAHRS.csv')
             pd_data = pd.read_csv(csv_path)
-            info = get_step_list(pd_data)
-            save_path = os.path.join(save_root, "%s.txt" % name)
-            with open(save_path, 'w') as f:
-                json.dump(info, f, indent=4)
+            get_step_list(pd_data, save_dir=save_root, base_name=name)
