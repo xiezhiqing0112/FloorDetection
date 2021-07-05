@@ -3,12 +3,17 @@ import numpy as np
 from collections import defaultdict
 from scipy.spatial.distance import euclidean
 from fastdtw import fastdtw
+from dtaidistance import dtw, dtw_ndim
 import math
 from sklearn.cluster import AffinityPropagation as AP
 
 
 def slide_window_preprocess(orientations: np.ndarray, start_index, window_size):
     """
+    思路:
+        1.前后各oritationStartIndex个方向不要，去掉
+        2.滑动窗口大小为slidingWindowSize，求得平均值aveDirection
+        3.第i个方向和平均值的差，差大于35，则用平均值代替
 
     Args:
         orientations:
@@ -50,6 +55,15 @@ def slide_window_preprocess(orientations: np.ndarray, start_index, window_size):
 
 
 def ori_diff(ori1, ori2):
+    """
+    计算方向差
+    Args:
+        ori1:
+        ori2:
+
+    Returns:
+
+    """
     if abs(ori1 - ori2) <= 180:
         diff = abs(ori1 - ori2)
     else:
@@ -74,6 +88,14 @@ def get_avg_orientation(orientations: np.ndarray):
 
 
 def preprocess_magenatic(step_list: List):
+    """
+
+    Args:
+        step_list:
+
+    Returns:
+
+    """
     for i in range(len(step_list)):
         step_info = step_list[i]
         pitch = step_info['pitch']
@@ -95,7 +117,7 @@ def preprocess_magenatic(step_list: List):
 
 def mag2flat(magnetics: np.ndarray, headings: np.ndarray):
     """
-
+    将载体坐标系的数据转化成航向坐标系的数据
     Args:
         magnetics: (N, 3(x, y, x))
         headings: (N, 3(pitch, roll, yaw))
@@ -125,6 +147,7 @@ def mag2flat(magnetics: np.ndarray, headings: np.ndarray):
     return ret.squeeze()
 
 
+# 效率较低
 # class AffinityPropagation:
 #
 #     def __init__(self, data: List, max_iter, convergence_iter, lmd):
@@ -288,6 +311,7 @@ class APForDirection(AffinityPropagation):
 class APForMagenatic(AffinityPropagation):
 
     def cal_similarity(self, data):
+
         magnetic_samples = []  # 原子轨迹数 * 总的地磁信号(x, y, z)
         for i in range(self.length):
             atom_trajetory = data[i]
@@ -301,13 +325,14 @@ class APForMagenatic(AffinityPropagation):
                 z_mag.extend(step_info['zMagnetic'])
             samples = [x_mag, y_mag, z_mag]
             magnetic_samples.append(np.array(samples).transpose((1, 0)))  # 转置 可能需要
-
+        start = time.time()
         similarity = np.zeros((self.length, self.length))
         for i in range(self.length):
             for j in range(i + 1, self.length):
-                distance, path = fastdtw(magnetic_samples[i], magnetic_samples[j], dist=euclidean)
+                # distance, _ = fastdtw(magnetic_samples[i], magnetic_samples[j], dist=euclidean)
+                distance = dtw_ndim.distance_fast(magnetic_samples[i], magnetic_samples[j])
                 similarity[j][i] = similarity[i][j] = (-1) * distance
-
+        print("计算相似度耗时 ： {}".format(time.time() - start))
         mid = np.median(similarity)  # 中心参考度 取中值
         for i in range(self.length):
             similarity[i][i] = mid
@@ -317,15 +342,41 @@ class APForMagenatic(AffinityPropagation):
 if __name__ == '__main__':
     import json
     import os
+    import time
 
     root_dir = r'/media/xzq/data-2/data/crow_server/python_module/mate8'
+    max_iter = 500
+    convergence_iter = 50
+    lmd = 0.5
     data = []
     for file_name in os.listdir(root_dir):
         json_data = json.load(open(os.path.join(root_dir, file_name)))
         data.append(json_data)
-    ap = APForDirection(data, max_iter=500, convergence_iter=50, lmd=0.5)
-    # ap = APForMagenatic(data, max_iter=200, convergence_iter=50, lmd=0.5)
-    # center_inds, ret_info = ap.fit()
-    cluster_centers_indices_, labels_ = ap.fit()
-    print(cluster_centers_indices_)
-    print(labels_)
+    print("方向聚类开始.........")
+    start = time.time()
+    ap_ori = APForDirection(data, max_iter=max_iter, convergence_iter=convergence_iter, lmd=lmd)
+    ori_cluster_centers_indices_, ori_labels_ = ap_ori.fit()
+    print("方向聚类结束.........   \n耗时 ： {}" .format(time.time() - start))
+    class_num = ori_cluster_centers_indices_.shape[0]
+    count = 0       # 地磁聚类后总的类别数
+    cluster_result = {}
+    for label in range(class_num):
+        index = np.where(ori_labels_ == label)[0]
+        one_ori_data = [data[i] for i in index]
+        start = time.time()
+        print("地磁聚类开始..........")
+        ap_mag = APForMagenatic(one_ori_data, max_iter=max_iter, convergence_iter=convergence_iter, lmd=lmd)
+        mag_cluster_centers_indices_, mag_labels_ = ap_mag.fit()
+        print("地磁聚类结束.........   \n耗时 ： {}".format(time.time() - start))
+        for l in range(len(mag_cluster_centers_indices_)):
+            one_mag_data = [one_ori_data[i] for i in np.where(mag_labels_ == l)[0]]
+            cluster_result.update({
+                count: one_mag_data
+            })
+            count += 1
+        # print(mag_cluster_centers_indices_)
+        # print(mag_labels_)
+    print("最终聚类个数： %d" % count)
+    with open('./cluster_result.json', 'w') as f:
+        json.dump(cluster_result, f, indent=4)
+
