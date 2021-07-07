@@ -2,14 +2,19 @@ clc
 close all
 clear variables
 
-PLOTTER = true;
+PLOTTER = false;
 file='ACCEGYROMAGNAHRS.csv';
 path='E:\PDR\IPIN\IPINDATA\Logfiles\01-Training\01a-Regular\T01_01/';
+file_pos = 'POSI.csv';
+markpoint=importdata(strcat(path,file_pos));
+markpoint = markpoint.data;
 trial = importdata(strcat(path,file));
 trial =trial.data;
+startTime=zhidao_nearest(trial(:,2),markpoint(1,1));
+startIndex=find(trial(:,2)==startTime)-1000;
 calib_index = 1:7000;
-noise_index = 7001:11000;
-walk_index = 11001:length(trial);
+noise_index = 7001:startIndex;
+walk_index = startIndex:length(trial);
 Gyroscope=trial(:,10:12);
 Accelerometer=trial(:,4:6);
 Magnetometer=trial(:,16:18);
@@ -159,7 +164,7 @@ calib_acc_data.Z = calib_acc(:,3);
 % title('Calibrated Accelerometer Data')
 
 %% Gyroscope Calibration
-gyr_bias = mean(Gyroscope(noise_index,:))
+gyr_bias = mean(Gyroscope(noise_index,:));
 calib_gyr = Gyroscope(walk_index,:)-gyr_bias;
 % Time_gyr = datetime(trial(walk_index,9), 'ConvertFrom', 'posixtime' ,'TimeZone', 'local','Format','HH:mm:ss.SSS');
 calib_gyr_data = timetable('SampleRate',200);
@@ -248,14 +253,15 @@ gyro_data.Type(:) = Types(1);
 acc_data.Type(:) = Types(2);
 mag_data.Type(:) = Types(3);
 
-combined_raw = [acc_data; mag_data; gyro_data];
+% combined_raw = [acc_data; mag_data; gyro_data];
+combined_raw = [acc_data;gyro_data];
 combined_raw = sortrows(combined_raw);
 
 P = 1 * eye(4);
 
-calAcc_R = variance.acc * eye(3);
+calAcc_R = 0.9e-3 * eye(3);
 
-calGyr_R = variance.gyr * eye(3);
+calGyr_R = 0.001 * eye(3);
 
 calMag_R = variance.mag * eye(3);
 
@@ -328,6 +334,7 @@ for index = 1:1:height(combined_raw)
             error = y - y_hat;
             
             if norm(y) < 10.0 && norm(y) > 9.6
+                alfa = abs(norm(y)-9.81)/0.2 + 1;
                 [est,P] = measUpdate(est,P,error,H,R);            
                 J = (1/norm(est)^3)*(eye(4)*(est'*est) - (est*est'));
                 est = est/norm(est); 
@@ -375,54 +382,55 @@ for index = 1:1:height(combined_raw)
 end
 
 estimate = struct2table(estimate);
-estimate.Time = seconds(estimate.Time);
+% estimate.Time = seconds(estimate.Time);
 ekf_estimate = table2timetable(estimate);
 
 
 %% Error plotting
-ekf_acc_errors  = ekf_estimate(ekf_estimate.type=='ACC',:);
-ekf_mag_errors  = ekf_estimate(ekf_estimate.type=='MAG',:);
 
-if PLOTTER
-    figure
-    sgtitle('EKF errors')
-        subplot(2,1,1)    
-        stackedplot([ekf_acc_errors.error{:,:}]','DisplayLabels',{'x' 'y' 'z'})
-        title('raw imu data - accelerometer')
-        subplot(2,1,2)
-        stackedplot([ekf_mag_errors.error{:,:}]','DisplayLabels',{'x' 'y' 'z'})
-        title('raw imu data - magnetometer')
-    set(gcf,'position',[ 1434    138    548   489])
-end
+% ekf_acc_errors  = ekf_estimate(ekf_estimate.type=='ACC',:);
+% ekf_mag_errors  = ekf_estimate(ekf_estimate.type=='MAG',:);
+% 
+% if PLOTTER
+%     figure
+%     sgtitle('EKF errors')
+%         subplot(2,1,1)    
+%         stackedplot([ekf_acc_errors.error{:,:}]','DisplayLabels',{'x' 'y' 'z'})
+%         title('raw imu data - accelerometer')
+%         subplot(2,1,2)
+%         stackedplot([ekf_mag_errors.error{:,:}]','DisplayLabels',{'x' 'y' 'z'})
+%         title('raw imu data - magnetometer')
+%     set(gcf,'position',[ 1434    138    548   489])
+% end
 
 %% multiplicative extended kalman filter
 
-mekf_estimate = MultiplicativeExtendedKalmanFilter_series(prior_est, ...
-                                acc_data, gyro_data, mag_data, ...
-                                calib_mag_north_data, variance, false);
+% mekf_estimate = MultiplicativeExtendedKalmanFilter_series(prior_est, ...
+%                                 acc_data, gyro_data, mag_data, ...
+%                                 calib_mag_north_data, variance, false);
 
 %% Error plotting
-mekf_acc_errors  = mekf_estimate(ekf_estimate.type=='ACC',:);
-mekf_mag_errors  = mekf_estimate(ekf_estimate.type=='MAG',:);
-
-if PLOTTER
-    figure
-    sgtitle('EKF errors')
-        subplot(2,1,1)    
-        stackedplot([mekf_acc_errors.error{:,:}]')
-        title('raw imu data - accelerometer')
-        subplot(2,1,2)
-        stackedplot([mekf_mag_errors.error{:,:}]')
-        title('raw imu data - magnetometer')
-    set(gcf,'position',[ 1434    138    548   489])
-end
+% mekf_acc_errors  = mekf_estimate(ekf_estimate.type=='ACC',:);
+% mekf_mag_errors  = mekf_estimate(ekf_estimate.type=='MAG',:);
+% 
+% if PLOTTER
+%     figure
+%     sgtitle('EKF errors')
+%         subplot(2,1,1)    
+%         stackedplot([mekf_acc_errors.error{:,:}]')
+%         title('raw imu data - accelerometer')
+%         subplot(2,1,2)
+%         stackedplot([mekf_mag_errors.error{:,:}]')
+%         title('raw imu data - magnetometer')
+%     set(gcf,'position',[ 1434    138    548   489])
+% end
 %%
-mekf_euler_angles = timetable(mekf_estimate.Time);
-euler = q2euler([mekf_estimate.est{:,:}]);
-
-mekf_euler_angles.yaw = euler(1,:)';
-mekf_euler_angles.pitch = euler(2,:)';
-mekf_euler_angles.roll = euler(3,:)';
+% mekf_euler_angles = timetable(mekf_estimate.Time);
+% euler = q2euler([mekf_estimate.est{:,:}]);
+% 
+% mekf_euler_angles.yaw = euler(1,:)';
+% mekf_euler_angles.pitch = euler(2,:)';
+% mekf_euler_angles.roll = euler(3,:)';
 
 %% 
 ekf_euler_angles = timetable(ekf_estimate.Time);
@@ -432,21 +440,21 @@ ekf_euler_angles.yaw = euler(1,:)';
 ekf_euler_angles.pitch = euler(2,:)';
 ekf_euler_angles.roll = euler(3,:)';
 % 
-phone_estimate = timetable(shs_sample.device_computed.attitude.Time);
-euler = q2euler([shs_sample.device_computed.attitude{:,:}']);
+phone_estimate = timetable('SampleRate',200);
+% euler = q2euler([shs_sample.device_computed.attitude{:,:}']);
 
-phone_estimate.yaw = euler(1,:)';
-phone_estimate.pitch = euler(2,:)';
-phone_estimate.roll = euler(3,:)';
+phone_estimate.yaw = deg2rad(dev_comp_attitude(:,3));
+phone_estimate.pitch = deg2rad(dev_comp_attitude(:,1));
+phone_estimate.roll = deg2rad(dev_comp_attitude(:,2));
 
-figure
-subplot(2,1,1)
-stackedplot(ekf_euler_angles)
-title('EKF estimate')
-subplot(2,1,2)
-stackedplot(phone_estimate)
-title('Phone Estimate')
-set(gcf,'position',[ 1434    138    548   489])
+% figure
+% subplot(2,1,1)
+% stackedplot(ekf_euler_angles)
+% title('EKF estimate')
+% subplot(2,1,2)
+% stackedplot(phone_estimate)
+% title('Phone Estimate')
+% set(gcf,'position',[ 1434    138    548   489])
 
 
 % figure
@@ -482,47 +490,51 @@ set(gcf,'position',[ 1434    138    548   489])
 % title('Phone Estimate: pitch')
 
 %%
-shot =-(phone_estimate.yaw - phone_estimate.yaw(1));
-long = ekf_euler_angles.yaw(1:3:end);
-for i=2:length(shot)
-    if shot(i)- shot(i-1) > pi/2
-        shot(i:end) = shot(i:end) - 2*pi;
-    elseif shot(i)- shot(i-1) < -pi/2
-        shot(i:end) = shot(i:end) + 2*pi;
-    end
-end
-for i=2:length(long)
-    if long(i)- long(i-1) > pi/2
-        long(i:end) = long(i:end) - 2*pi;
-    elseif long(i)- long(i-1) < -pi/2
-        long(i:end) = long(i:end) + 2*pi;
-    end
-end
+% shot =-(phone_estimate.yaw - phone_estimate.yaw(1));
+% long = ekf_euler_angles.yaw(1:2:end);
+% for i=2:length(shot)
+%     if shot(i)- shot(i-1) > pi/2
+%         shot(i:end) = shot(i:end) - 2*pi;
+%     elseif shot(i)- shot(i-1) < -pi/2
+%         shot(i:end) = shot(i:end) + 2*pi;
+%     end
+% end
+% for i=2:length(long)
+%     if long(i)- long(i-1) > pi/2
+%         long(i:end) = long(i:end) - 2*pi;
+%     elseif long(i)- long(i-1) < -pi/2
+%         long(i:end) = long(i:end) + 2*pi;
+%     end
+% end
+% figure
+% hold on
+% plot(phone_estimate.Time,rad2deg(shot))
+% plot(phone_estimate.Time,rad2deg(long))
+%% 
 
-
-figure
-subplot(3,1,1)
-hold on
-plot(ekf_euler_angles.Time, ekf_euler_angles.yaw)
-plot(phone_estimate.Time, phone_estimate.yaw)
-hold off
-legend('ekf','phone estimate')
-title('yaw')
-subplot(3,1,2)
-hold on
-plot(ekf_euler_angles.Time, ekf_euler_angles.roll)
-plot(phone_estimate.Time, phone_estimate.roll)
-hold off
-legend('ekf','phone estimate')
-title('roll')
-subplot(3,1,3)
-hold on
-plot(ekf_euler_angles.Time, ekf_euler_angles.pitch)
-plot(phone_estimate.Time, phone_estimate.pitch)
-hold off
-legend('ekf','phone estimate')
-title('pitch')
-sgtitle([ data_set_name ' example'])
+% figure
+% % subplot(3,1,1)
+% hold on
+% plot(ekf_euler_angles.Time, ekf_euler_angles.yaw)
+% plot(phone_estimate.Time, phone_estimate.yaw)
+% hold off
+% legend('ekf','phone estimate')
+% title('yaw')
+% subplot(3,1,2)
+% hold on
+% plot(ekf_euler_angles.Time, ekf_euler_angles.roll)
+% plot(phone_estimate.Time, phone_estimate.roll)
+% hold off
+% legend('ekf','phone estimate')
+% title('roll')
+% subplot(3,1,3)
+% hold on
+% plot(ekf_euler_angles.Time, ekf_euler_angles.pitch)
+% plot(phone_estimate.Time, phone_estimate.pitch)
+% hold off
+% legend('ekf','phone estimate')
+% title('pitch')
+% sgtitle([ data_set_name ' example'])
 %%
 
 [shs.steps, shs.data, shs.sd_components] = stepDetection(acc_data, 'data' , false);
@@ -542,17 +554,17 @@ shs.steps.data.step_length = test_height.*male.k.*sqrt(shs.sl_components.freq);
 shs.steps.data.step_length(1) = test_height.*male.k1;
 shs.est_distance = sum(shs.steps.data.step_length);
 %
-door_handle_use = ReferenceFile2Timetable('datasets/marie testing/lopen1.2/lopen1_2/references.txt');
+% door_handle_use = ReferenceFile2Timetable('datasets/marie testing/lopen1.2/lopen1_2/references.txt');
 
-target = timetable(ekf_estimate.Time);
-target.est = [ekf_estimate.est{:,:}]';
-[og_positions1, step_orient1] = plotTrajectory(target,shs,door_handle_use);
+ekf_pred = timetable(ekf_estimate.Time);
+ekf_pred.est = [ekf_estimate.est{:,:}]';
+[og_positions1, step_orient1] = plotTrajectory(ekf_pred,shs);
 
-clear target
-target = timetable(shs_sample.device_computed.attitude.Time);
-target.est = shs_sample.device_computed.attitude{:,:};
-target = retime(target,unique(ekf_estimate.Time),'linear');
-[og_positions1, step_orient1] = plotTrajectory(target,shs,door_handle_use);
+% clear target
+phone_pred = timetable(phone_estimate.Time);
+phone_pred.est = angle2quat(phone_estimate.yaw,phone_estimate.pitch,phone_estimate.roll);
+phone_pred = retime(phone_pred,unique(phone_estimate.Time),'linear');
+[og_positions1, step_orient1] = plotTrajectory(phone_pred,shs);
 
 
 

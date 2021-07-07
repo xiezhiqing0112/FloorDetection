@@ -9,7 +9,7 @@ new_position=GPSToXY(markpoint(:,[3 4]));
 new_position=new_position-new_position(1,:);
 plot(new_position(:,1),new_position(:,2));
 startTime=zhidao_nearest(trial(:,2),markpoint(1,1));
-% startIndex=find(trial(:,2)==startTime);
+startIndex=find(trial(:,2)==startTime);
 startIndex=11001;
 trial=trial(startIndex:end,:);
 %  trial = flip(trial);
@@ -230,12 +230,12 @@ turn_flag = [];
 for k = 1:StepCount-3
     pos_start = PeakLocation(k);
     pos_end = PeakLocation(k+1);
-    yaw_diff = max(Euler(PeakLocation(k):PeakLocation(k+3),3)) - min(Euler(PeakLocation(k):PeakLocation(k+3),3));
+    yaw_diff = max(euler(PeakLocation(k):PeakLocation(k+3),3)) - min(euler(PeakLocation(k):PeakLocation(k+3),3));
     if yaw_diff >65
         turn_flag = [turn_flag, k+1];
     end
-    YawSin = mean(Euler(pos_start:pos_end,3));
-    YawCos = mean(Euler(pos_start:pos_end,3));
+    YawSin = mean(euler(pos_start:pos_end,3));
+    YawCos = mean(euler(pos_start:pos_end,3));
     % step length estimation
     % SL = 0.2844 + 0.2231*frequency + 0.0426*AV
     StepFreq = 1000/(PkValue(k)*2);
@@ -259,7 +259,7 @@ for k = 1:StepCount-3
 %       pause(0.01)
 end
 figure
-scatter(PositionX,PositionY,'b'); grid on; 
+plot(PositionX(1:end-3),PositionY(1:end-3),'b'); grid on; 
 % hold on 
 % scatter(PositionX(turn_flag),PositionY(turn_flag),'r');
 % hold on;
